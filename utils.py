@@ -4,20 +4,20 @@ from transformers import AutoTokenizer
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
-def save_output(file: str, outputs: List[str]) -> None:
+def save_output(file, outputs):
     outputs = list(map(lambda x: x + '\n', outputs))
     with open(file, 'w') as f:
         f.writelines(outputs)
         f.write('\n')
 
 
-def load_input_data() -> List[str]:
+def load_input_data():
     with open('test_mrs.txt', 'r+') as f:
         ls = f.readlines()
     return ls
 
 
-def generate(model, tokenizer: AutoTokenizer, input: str) -> str:
+def generate(model, tokenizer, input):
     input = input.replace('\n','')
     txt = input + " <ref:> "
     inputs = tokenizer(txt, return_tensors='pt').to(device)
@@ -29,5 +29,6 @@ def generate(model, tokenizer: AutoTokenizer, input: str) -> str:
         length_penalty=2, 
         max_length=512)
     output_text = tokenizer.decode(o[0], skip_special_tokens=True)
-    output_text = output_text.replace(ls[i],'').lstrip()
+    output_text = output_text.strip()
+    output_text = output_text.split('] ')[1].strip()
     return output_text
